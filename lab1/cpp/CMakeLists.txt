@@ -6,7 +6,7 @@ target_sources(lab1
                 main.cpp
         PUBLIC
         FILE_SET "modules" TYPE CXX_MODULES FILES
-                Multiplyer.cppm
-                IOMatrix.cppm
-                RMatrix.cppm
+               matrix_io.cppm
+               matrix_ops.cppm
+               main.cpp
 )
