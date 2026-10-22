@@ -26,7 +26,7 @@ lab1/
 ## 3. Разбор кода C++
 3.1 matrix_io.cppm
 Этот модуль изолирует работу с файловой системой
-
+```
 // Экспортируем псевдоним типа, чтобы не писать длинную конструкцию везде
 export using Matrix = std::vector<std::vector<double>>;
 
@@ -61,3 +61,4 @@ export void writeMatrix(const std::string& filename, const Matrix& matrix) {
         fout << "\n";
     }
 }
+```
