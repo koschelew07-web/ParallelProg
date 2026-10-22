@@ -27,7 +27,6 @@ lab1/
 3.1 matrix_io.cppm
 Этот модуль изолирует работу с файловой системой
 ```
-// Экспортируем псевдоним типа, чтобы не писать длинную конструкцию везде
 export using Matrix = std::vector<std::vector<double>>;
 
 export Matrix readMatrix(const std::string& filename, int& N) {
@@ -37,9 +36,8 @@ export Matrix readMatrix(const std::string& filename, int& N) {
         std::exit(1); // Аварийное завершение, если файла нет
     }
     
-    fin >> N; // Первое число в файле — размерность N
+    fin >> N; 
     
-    // Создаем матрицу N x N, заполненную нулями
     Matrix matrix(N, std::vector<double>(N));
     for (int i = 0; i < N; ++i) {
         for (int j = 0; j < N; ++j) {
@@ -73,7 +71,6 @@ export Matrix multiplyMatrices(const Matrix& A, const Matrix& B) {
     int N = A.size();
     Matrix C(N, std::vector<double>(N, 0.0)); // Результат инициализируем нулями
 
-    // Три вложенных цикла: i - строка, j - столбец, k - индекс суммы
     for (int i = 0; i < N; ++i) {
         for (int j = 0; j < N; ++j) {
             for (int k = 0; k < N; ++k) {
@@ -92,7 +89,6 @@ import matrix_io;
 import matrix_ops;
 
 int main(int argc, char* argv[]) {
-    // Аргументы командной строки 
     std::string fileA = (argc > 1) ? argv[1] : "matrix_A.txt";
     std::string fileB = (argc > 2) ? argv[2] : "matrix_B.txt";
     std::string fileC = (argc > 3) ? argv[3] : "matrix_C.txt";
@@ -102,19 +98,16 @@ int main(int argc, char* argv[]) {
     int N_B = 0;
     Matrix B = readMatrix(fileB, N_B);
 
-    // Замер времени СТРОГО вокруг умножения (без учета I/O)
     auto start = std::chrono::high_resolution_clock::now();
     
     Matrix C = multiplyMatrices(A, B);
     
     auto end = std::chrono::high_resolution_clock::now();
     
-    // Перевод времени в микросекунды
     auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
     writeMatrix(fileC, C);
 
-    // Вычисление объема задачи и производительности
     double ops = 2.0 * N * N * N; 
     double gflops = (ops / (duration / 1000000.0)) / 1e9;
 
@@ -135,10 +128,8 @@ def verify(fileA, fileB, fileC):
     B = np.loadtxt(fileB, skiprows=1)
     C_cpp = np.loadtxt(fileC, skiprows=1)
     
-    # Считаем эталон с помощью библиотеки BLAS (внутри NumPy)
     C_numpy = A @ B
     
-    # Сравниваем. np.allclose нужен из-за погрешности float.
     # atol=1e-3 (допуск 0.001), так как C++ и NumPy могут складывать числа в разном порядке.
     ok = np.allclose(C_cpp, C_numpy, atol=1e-3)
     print("Верификация пройдена" if ok else "Ошибка верификации")
@@ -147,7 +138,6 @@ def verify(fileA, fileB, fileC):
 Для каждого размера N скрипт генерирует случайные матрицы, вызывает matrix_mul.exe через subprocess и вытаскивает время из консольного вывода:
 ```
 result = subprocess.run([str(BIN), str(fileA), str(fileB), str(fileC)], capture_output=True, text=True)
-# Парсинг строки "Время выполнения: 1234 мкс"
 for line in result.stdout.split("\n"):
     if "Время" in line:
         t = float(line.split(":")[1].replace("мкс", "").strip()) / 1000 # перевод в мс
@@ -158,4 +148,5 @@ for line in result.stdout.split("\n"):
 <img width="640" height="480" alt="benchmark" src="https://github.com/user-attachments/assets/8e918704-6ba1-4a2b-865b-2b6e1cb3c3b7" />
 
 На графике представлены две линии: Сплошная линия (Эксперимент): Реальное время работы C++ программы для N = 100 , 200 , 400 , 600 , 800 N=100,200,400,600,800. Пунктирная линия (Теория O(N³)): Математическая модель, нормированная по первой точке. Формула: t ( N ) = t ( 100 ) ⋅ ( N 100 ) 3 t(N)=t(100)⋅( 100 N ​ ) 3 .
+
 На графике видно, что экспериментальная точка для N=800 чуть выше теоретической. Это связано с эффектом кэш-памяти (Cache Miss). При размере 800x800 матрица занимает около 5 МБ (800 * 800 * 8 байт). Процессор перестает помещать её в сверхбыстрый кэш (L3), и данные начинают подгружаться из более медленной оперативной памяти. Поэтому время немного возрастает, а линия чуть отклоняется вверх. Это нормальное поведение для реальных вычислительных систем.
